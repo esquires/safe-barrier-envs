@@ -1,0 +1,203 @@
+dbl-int:
+  actuator_lims: {low: [-1], high: [1]}
+
+  dynamics:
+    dt: 0.1
+
+  a_tilde:
+    # just within the actuator limits
+    a_minus: -0.99
+    a_plus: 0.99
+
+  barrier_constraint:
+    lmbda: 0.5
+
+  do_render: false
+  save_frames: false
+
+  floating_point_err_thresh: 1e-6
+
+  env:
+    init_pos_bounds: [0, 10]
+    init_vel_bounds: [-5, 5]
+    max_timesteps: 100
+    rew_type: normal
+    use_safe_controller_obs: false
+    start_barrier_safe: true
+
+  policy_graph_params:
+    min_logp: -5
+    max_logp: 5
+
+    impulse_height_pct: 0.4
+    impulse_arrow_height_pct: 0.1
+    impulse_arrow_width_pct: 0.02
+
+  viewer:
+    x_axis: [[0.05, 0.95], [0.05, 0.05]]
+    y_axis: [0.05, 0.30]
+
+    pos_to_x: [-3, 30]
+
+    x_tick_sep: 5
+    x_tick_offsets: [-0.02, 0]
+
+    width: 1500
+    height: 450
+
+    agent_width: 0.03
+
+    text_pos: [0.05, 0.50]
+    text_y_sep: 0.05
+
+    done_delay_sec: 2
+
+    graph_x: [0.5, 0.95]
+    graph_y: [0.5, 0.95]
+
+    render_policy: true
+
+car:
+
+  # sources
+  # [1] Polack, Philip, et al. "The kinematic bicycle model: A
+  #     consistent model for planning feasible trajectories for
+  #     autonomous vehicles?." 2017 IEEE intelligent vehicles
+  #     symposium (IV). IEEE, 2017.
+  #     https://ieeexplore.ieee.org/abstract/document/7995816
+  # [2] Bokare, Prashant Shridhar, and Akhilesh Kumar Maurya.
+  #     "Acceleration-deceleration behaviour of various vehicle types."
+  #     Transportation research procedia 25 (2017): 4733-4749.
+  #     https://www.sciencedirect.com/science/article/pii/S2352146517307937
+  # [3] Ames, Aaron D., et al. "Control barrier function based quadratic
+  #     programs for safety critical systems." IEEE Transactions on Automatic
+  #     Control 62.8 (2016): 3861-3876.
+  #     https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=7782377
+
+  car_params:
+    # [1], see section V in the intro
+    length_front: 1.17
+    length_rear: 1.77
+
+    # [3] uses 6 ft. which is 1.8288 meters
+    width: 1.8288
+
+  actuator_lims:
+    # [3] uses 0.3 * 9.81 for deceleration which is about the same as 2.87.
+    # using 1 degrees degrees for steering angle from [1]
+    low: [-2.87, -1]
+    high: [2.87, 1]
+
+  safety_spec:
+    # given W_lane and car width we have (W_lane - car_width) / 2 = (3.6 - 1.8288) / 2
+    # on either side so setting to 0.5
+    D_lead: 10.0  # set to longer than a car length
+    tau: 1.8  # [3], see section V.A
+    v_lim_miles_per_hour: 70
+
+  floating_point_err_thresh: 1e-6
+
+  # https://safety.fhwa.dot.gov/geometric/pubs/mitigationstrategies/chapter3/3_lanewidth.cfm
+  W_lane: 3.6
+
+  a_tilde:
+    # just within the actuator limits
+    a_minus: -2.86
+    a_plus: 2.86
+
+  use_continuous_dynamics: false
+
+  dynamics:
+    dt: 0.1
+    
+  barrier_constraint:
+    lmbda: 0.5
+
+  env:
+    lead_veh:
+      speed_range_mph: [0, 70]
+      cruise_interval: [0, 5]
+      start_x_lims: [100, 500]
+
+    speed_tgt_mph: 70
+    max_timesteps: 1000
+    done_on_catastrophic_unsafe: true
+
+    do_render: false
+    save_frames: false
+
+    rew_type: normal
+    use_safe_controller_obs: false
+    start_barrier_safe: true
+    done_on_any_unsafe: false
+    early_stop_when_below_mph: -10000  # inactive
+    pct_max_decel: 0.0
+
+  legend_params:
+    y_sep: 0.03
+    x_sep: 0.005
+    line_len: 0.02
+
+  policy_graph_params:
+    min_logp: -5
+    max_logp: 5
+
+    impulse_height_pct: 0.4
+    impulse_arrow_height_pct: 0.1
+    impulse_arrow_width_pct: 0.02
+
+  viewer:
+    W_lane_render: 0.12
+    road_beg_x: 0.11
+    road_end_x: [0.95, 0.70]
+    road_start_y: 0.17
+
+    font_size: 55
+    lane_dist_text_offset: 0.07
+    lane_dist_line_offset: 0.02
+    lane_dist_text_enable: true
+    lane_dist_line_enable: true
+
+    car_sep_upper_text_offset: 0.15
+    car_sep_upper_line_offset: 0.03
+    car_sep_lower_text_offset: -0.02
+    car_sep_lower_line_offset: 0.03
+    car_sep_text_enable: true
+    car_sep_line_enable: true
+
+    dash_width_m: 10
+    dash_step_m: 20
+
+    vel_y: 0.60
+    vel_height: 0.10
+    vel_text_sep: 0.08
+    vel_label_text_sep: 0.22
+
+    vel_x: 0.10
+    vel_x_sep: 0.18
+    vel_width: 0.02
+    vel_line_components: [a, b, c]
+    vel_text_components: [a, b, c]
+
+    time_x: 0.60
+    time_y: 0.95
+    time_enable: true
+
+    width: 1920
+    height: 500
+    car_img_scale: 0.05
+
+    done_delay_sec: 2
+    done_msg_x: 0.60
+    done_msg_y: 0.80
+
+    render_policy: false
+
+    vel_graph_x: [0.71, 0.99]
+    vel_graph_y: [0.70, 0.99]
+
+    steering_graph_x: [0.71, 0.99]
+    steering_graph_y: [0.36, 0.65]
+
+    constraint_graph_x: [0.71, 0.99]
+    constraint_graph_y: [0.01, 0.32]
